@@ -37,7 +37,7 @@ class TopBar extends StatelessWidget {
                 Icons.battery_full,
                 color: appState.batteryLevel > 20
                     ? Colors.lightGreen
-                    : Colors.orange,
+                    : const Color.fromARGB(255, 255, 0, 0),
                 size: 40,
               ),
               Text(
@@ -45,7 +45,7 @@ class TopBar extends StatelessWidget {
                 style: TextStyle(
                   color: appState.batteryLevel > 20
                       ? Colors.lightGreen
-                      : Colors.orange,
+                      : const Color.fromARGB(255, 255, 0, 0),
                   fontSize: 25,
                 ),
               ),

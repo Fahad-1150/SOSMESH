@@ -24,7 +24,7 @@ dependencies:
   http: ^1.2.2
   uuid: ^4.5.1
   battery_plus: ^7.0.0
-  
+  camera: ^0.10.5+9
 
 dev_dependencies:
   flutter_test:

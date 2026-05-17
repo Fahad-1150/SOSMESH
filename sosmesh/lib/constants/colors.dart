@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color bg = Color(0xFF001F4D);
-  static const Color card = Color(0xFFF0F0F0);
+  static const Color bg = Color.fromARGB(255, 0, 0, 0);
+  static const Color card = Color.fromARGB(255, 140, 138, 138);
   static const Color dark = Color(0xFF203554);
   static const Color green = Colors.lightGreenAccent;
-  static const Color orange = Colors.deepOrange;
-  static const Color cyan = Colors.cyan;
+  static const Color orange = Color.fromARGB(255, 255, 1, 1);
+  static const Color cyan = Color.fromARGB(255, 0, 0, 0);
 }

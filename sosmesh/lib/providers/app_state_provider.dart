@@ -150,12 +150,13 @@ class AppStateProvider extends ChangeNotifier {
   }
 
   @override
-  void dispose() {
+  Future<void> dispose() async {
     _batteryUpdateTimer?.cancel();
     _bluetoothSubscription?.cancel();
     _wifiSubscription?.cancel();
-    // Make sure flashlight is turned off when app closes
-    _flashlightService.turnOffFlashlight();
+    // Make sure flashlight is turned off and resources cleaned up
+    await _flashlightService.turnOffFlashlight();
+    await _flashlightService.dispose();
     super.dispose();
   }
 

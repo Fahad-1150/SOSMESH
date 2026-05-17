@@ -132,7 +132,7 @@ class _BottomNavState extends State<BottomNav>
                         backgroundColor: const Color(0xff0d2f63),
                         title: const Text(
                           'Voice Chat',
-                          style: TextStyle(color: Colors.cyan),
+                          style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                         ),
                         content: Column(
                           mainAxisSize: MainAxisSize.min,

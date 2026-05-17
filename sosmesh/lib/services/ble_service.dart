@@ -49,4 +49,19 @@ class BLEService {
   }
 
   bool get isScanning => FlutterBluePlus.isScanningNow;
+
+  Future<bool> isBluetoothEnabled() async {
+    try {
+      return await FlutterBluePlus.adapterState.first.then(
+        (state) => state == BluetoothAdapterState.on,
+      );
+    } catch (e) {
+      debugPrint('Error checking Bluetooth state: $e');
+      return false;
+    }
+  }
+
+  Stream<BluetoothAdapterState> getBluetoothStateStream() {
+    return FlutterBluePlus.adapterState;
+  }
 }

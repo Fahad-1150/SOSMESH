@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 import '../providers/app_state_provider.dart';
 
 class BottomNav extends StatefulWidget {
@@ -12,6 +13,7 @@ class BottomNav extends StatefulWidget {
 class _BottomNavState extends State<BottomNav>
     with SingleTickerProviderStateMixin {
   late AnimationController _flashController;
+  Timer? _blinkTimer;
 
   @override
   void initState() {
@@ -24,17 +26,34 @@ class _BottomNavState extends State<BottomNav>
 
   @override
   void dispose() {
+    _blinkTimer?.cancel();
     _flashController.dispose();
     super.dispose();
   }
 
   void _toggleFlash(AppStateProvider appState) {
-    appState.toggleFlash();
+    // Cancel any existing blink timer
+    _blinkTimer?.cancel();
 
     if (appState.flashEnabled) {
-      _flashController.repeat(reverse: true);
-    } else {
+      // If already on, turn it off
+      appState.toggleFlash();
       _flashController.stop();
+    } else {
+      // Turn on and start blinking
+      _flashController.repeat(reverse: true);
+      appState.toggleFlash();
+
+      // Create a rapid blinking effect by turning flashlight on/off repeatedly
+      _blinkTimer = Timer.periodic(const Duration(milliseconds: 150), (_) {
+        if (appState.flashEnabled) {
+          // The flashlight will be kept on by the provider
+          // This timer is mainly for the UI animation
+        } else {
+          _blinkTimer?.cancel();
+          _flashController.stop();
+        }
+      });
     }
   }
 

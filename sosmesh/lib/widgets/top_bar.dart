@@ -16,7 +16,7 @@ class TopBar extends StatelessWidget {
               Icon(
                 Icons.wifi,
                 size: 40,
-                color: appState.isLocationOn ? Colors.cyan : Colors.grey,
+                color: appState.isWiFiOn ? Colors.cyan : Colors.grey,
               ),
               Icon(
                 Icons.bluetooth,

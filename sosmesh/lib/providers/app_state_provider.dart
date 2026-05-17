@@ -4,6 +4,8 @@ import '../services/ble_service.dart';
 import '../services/location_service.dart';
 import '../services/sos_service.dart';
 import '../services/battery_service.dart';
+import '../services/flashlight_service.dart';
+import '../services/connectivity_service.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class AppStateProvider extends ChangeNotifier {
@@ -11,26 +13,33 @@ class AppStateProvider extends ChangeNotifier {
   final LocationService _locationService = LocationService();
   final SOSService _sosService = SOSService();
   final BatteryService _batteryService = BatteryService();
+  final FlashlightService _flashlightService = FlashlightService();
+  final ConnectivityService _connectivityService = ConnectivityService();
 
   List<ScanResult> _nearbyDevices = [];
   List<SOSMessage> _receivedSOS = [];
   bool _isBluetoothOn = false;
-  bool _isLocationOn = false;
+  bool _isWiFiOn = false;
   int _batteryLevel = 100;
   bool _flashEnabled = false;
   bool _isSOS = false;
   Timer? _batteryUpdateTimer;
+  StreamSubscription? _bluetoothSubscription;
+  StreamSubscription? _wifiSubscription;
 
   // Getters
   List<ScanResult> get nearbyDevices => _nearbyDevices;
   List<SOSMessage> get receivedSOS => _receivedSOS;
   bool get isBluetoothOn => _isBluetoothOn;
-  bool get isLocationOn => _isLocationOn;
+  bool get isWiFiOn => _isWiFiOn;
   int get batteryLevel => _batteryLevel;
   bool get flashEnabled => _flashEnabled;
   bool get isSOS => _isSOS;
   BLEService get bleService => _bleService;
   SOSService get sosService => _sosService;
+
+  // For backward compatibility
+  bool get isLocationOn => _isWiFiOn;
 
   AppStateProvider() {
     _initializeServices();
@@ -39,9 +48,24 @@ class AppStateProvider extends ChangeNotifier {
 
   Future<void> _initializeServices() async {
     try {
-      final hasPermissions = await _bleService.requestPermissions();
-      _isBluetoothOn = hasPermissions;
-      _isLocationOn = hasPermissions;
+      await _bleService.requestPermissions();
+
+      // Initialize Bluetooth status
+      _isBluetoothOn = await _bleService.isBluetoothEnabled();
+      _bluetoothSubscription = _bleService.getBluetoothStateStream().listen((
+        state,
+      ) {
+        _isBluetoothOn = state == BluetoothAdapterState.on;
+        notifyListeners();
+      });
+
+      // Initialize WiFi status
+      await _connectivityService.initialize();
+      _isWiFiOn = _connectivityService.isWiFiConnected;
+      _connectivityService.startListening((isConnected) {
+        _isWiFiOn = isConnected;
+        notifyListeners();
+      });
 
       // Initialize battery service
       await _batteryService.initializeBattery();
@@ -51,7 +75,7 @@ class AppStateProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error initializing services: $e');
       _isBluetoothOn = false;
-      _isLocationOn = false;
+      _isWiFiOn = false;
     }
   }
 
@@ -105,8 +129,15 @@ class AppStateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleFlash() {
+  void toggleFlash() async {
     _flashEnabled = !_flashEnabled;
+
+    if (_flashEnabled) {
+      await _flashlightService.turnOnFlashlight();
+    } else {
+      await _flashlightService.turnOffFlashlight();
+    }
+
     notifyListeners();
   }
 
@@ -121,6 +152,10 @@ class AppStateProvider extends ChangeNotifier {
   @override
   void dispose() {
     _batteryUpdateTimer?.cancel();
+    _bluetoothSubscription?.cancel();
+    _wifiSubscription?.cancel();
+    // Make sure flashlight is turned off when app closes
+    _flashlightService.turnOffFlashlight();
     super.dispose();
   }
 

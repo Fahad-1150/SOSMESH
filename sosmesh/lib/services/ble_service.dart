@@ -61,6 +61,16 @@ class BLEService {
     }
   }
 
+  Future<bool> enableBluetooth() async {
+    try {
+      await FlutterBluePlus.turnOn();
+      return true;
+    } catch (e) {
+      debugPrint('Failed to enable Bluetooth: $e');
+      return false;
+    }
+  }
+
   Stream<BluetoothAdapterState> getBluetoothStateStream() {
     return FlutterBluePlus.adapterState;
   }

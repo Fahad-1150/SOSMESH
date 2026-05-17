@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import '../providers/app_state_provider.dart';
+import '../widgets/ai.dart';
 
 class BottomNav extends StatefulWidget {
   const BottomNav({super.key});
@@ -32,24 +33,17 @@ class _BottomNavState extends State<BottomNav>
   }
 
   void _toggleFlash(AppStateProvider appState) {
-    // Cancel any existing blink timer
     _blinkTimer?.cancel();
 
     if (appState.flashEnabled) {
-      // If already on, turn it off
       appState.toggleFlash();
       _flashController.stop();
     } else {
-      // Turn on and start blinking
       _flashController.repeat(reverse: true);
       appState.toggleFlash();
 
-      // Create a rapid blinking effect by turning flashlight on/off repeatedly
       _blinkTimer = Timer.periodic(const Duration(milliseconds: 150), (_) {
-        if (appState.flashEnabled) {
-          // The flashlight will be kept on by the provider
-          // This timer is mainly for the UI animation
-        } else {
+        if (!appState.flashEnabled) {
           _blinkTimer?.cancel();
           _flashController.stop();
         }
@@ -111,10 +105,8 @@ class _BottomNavState extends State<BottomNav>
                         const SizedBox(width: 5),
                         Text(
                           appState.flashEnabled ? "⚡ FLASHING" : "⚡ Flash",
-                          style: TextStyle(
-                            color: appState.flashEnabled
-                                ? Colors.black
-                                : Colors.black,
+                          style: const TextStyle(
+                            color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -123,84 +115,13 @@ class _BottomNavState extends State<BottomNav>
                   ),
                 ),
               ),
+
+              // ✅ CHANGED PART ONLY
               GestureDetector(
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        backgroundColor: const Color(0xff0d2f63),
-                        title: const Text(
-                          'Voice Chat',
-                          style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-                        ),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.smart_toy,
-                              size: 50,
-                              color: Colors.cyan,
-                            ),
-                            const SizedBox(height: 20),
-                            const Text(
-                              'AI Assistant',
-                              style: TextStyle(
-                                color: Colors.lightGreen,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            const Text(
-                              'Ask for help, report your situation, or get navigation assistance.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            const SizedBox(height: 20),
-                            Container(
-                              padding: const EdgeInsets.all(15),
-                              decoration: BoxDecoration(
-                                color: const Color(0xff203554),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: Colors.cyan,
-                                  width: 2,
-                                ),
-                              ),
-                              child: const Text(
-                                'Voice input ready\nPress and speak...',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: Colors.cyan),
-                              ),
-                            ),
-                          ],
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text(
-                              'Close',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Voice recording started...'),
-                                  backgroundColor: Colors.blue,
-                                ),
-                              );
-                            },
-                            child: const Text(
-                              'Start Recording',
-                              style: TextStyle(color: Colors.cyan),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AIPage()),
                   );
                 },
                 child: Row(

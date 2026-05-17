@@ -59,13 +59,23 @@ class AppStateProvider extends ChangeNotifier {
         notifyListeners();
       });
 
+      if (!_isBluetoothOn) {
+        _isBluetoothOn = await _bleService.enableBluetooth();
+      }
+
       // Initialize WiFi status
       await _connectivityService.initialize();
       _isWiFiOn = _connectivityService.isWiFiConnected;
-      _connectivityService.startListening((isConnected) {
-        _isWiFiOn = isConnected;
+
+      // ✅ FIXED HERE (2 parameters instead of 1)
+      _connectivityService.startListening((isWiFi, hasInternet) {
+        _isWiFiOn = isWiFi;
         notifyListeners();
       });
+
+      if (!_isWiFiOn) {
+        await _connectivityService.openWifiSettings();
+      }
 
       // Initialize battery service
       await _batteryService.initializeBattery();
@@ -154,9 +164,11 @@ class AppStateProvider extends ChangeNotifier {
     _batteryUpdateTimer?.cancel();
     _bluetoothSubscription?.cancel();
     _wifiSubscription?.cancel();
-    // Make sure flashlight is turned off and resources cleaned up
+
+    // cleanup
     await _flashlightService.turnOffFlashlight();
     await _flashlightService.dispose();
+
     super.dispose();
   }
 

@@ -37,7 +37,7 @@ class FlashlightService {
     }
   }
 
-  /// Request camera permission for flashlight
+  /// Request camera permission
   Future<bool> _requestPermission() async {
     var status = await Permission.camera.request();
     if (!status.isGranted) {
@@ -47,36 +47,62 @@ class FlashlightService {
     return true;
   }
 
-  Future<void> turnOnFlashlight() async {
+  /// 🔴 FIXED: Blink flashlight (NOW OUTSIDE initializeCamera)
+  Future<void> blinkFlashlight({int times = 5}) async {
     try {
       bool permissionGranted = await _requestPermission();
-      if (!permissionGranted) {
-        debugPrint('Flashlight: Permission denied');
-        return;
-      }
+      if (!permissionGranted) return;
 
       await _initializeCamera();
 
-      if (_isCameraInitialized && _cameraController != null) {
+      if (_cameraController == null || !_isCameraInitialized) return;
+
+      for (int i = 0; i < times; i++) {
+        // ON
         await _cameraController!.setFlashMode(FlashMode.torch);
         _isFlashOn = true;
-        debugPrint('Flashlight: ON');
+        debugPrint('ON');
+
+        await Future.delayed(const Duration(milliseconds: 350));
+
+        // OFF
+        await _cameraController!.setFlashMode(FlashMode.off);
+        _isFlashOn = false;
+        debugPrint('OFF');
+
+        await Future.delayed(const Duration(milliseconds: 350));
       }
     } catch (e, s) {
-      debugPrint('Flashlight error (ON): $e');
+      debugPrint('Blink error: $e');
+      debugPrint('$s');
+    }
+  }
+
+  Future<void> turnOnFlashlight() async {
+    try {
+      bool permissionGranted = await _requestPermission();
+      if (!permissionGranted) return;
+
+      await _initializeCamera();
+
+      if (_cameraController != null && _isCameraInitialized) {
+        await _cameraController!.setFlashMode(FlashMode.torch);
+        _isFlashOn = true;
+      }
+    } catch (e, s) {
+      debugPrint('Flash ON error: $e');
       debugPrint('$s');
     }
   }
 
   Future<void> turnOffFlashlight() async {
     try {
-      if (_isCameraInitialized && _cameraController != null) {
+      if (_cameraController != null && _isCameraInitialized) {
         await _cameraController!.setFlashMode(FlashMode.off);
       }
       _isFlashOn = false;
-      debugPrint('Flashlight: OFF');
     } catch (e, s) {
-      debugPrint('Flashlight error (OFF): $e');
+      debugPrint('Flash OFF error: $e');
       debugPrint('$s');
     }
   }
@@ -89,17 +115,13 @@ class FlashlightService {
     }
   }
 
-  /// Cleanup resources
   Future<void> dispose() async {
     try {
-      if (_cameraController != null) {
-        await _cameraController!.dispose();
-        _cameraController = null;
-        _isCameraInitialized = false;
-        debugPrint('Flashlight service disposed');
-      }
+      await _cameraController?.dispose();
+      _cameraController = null;
+      _isCameraInitialized = false;
     } catch (e) {
-      debugPrint('Error disposing flashlight service: $e');
+      debugPrint('Dispose error: $e');
     }
   }
 }

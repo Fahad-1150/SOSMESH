@@ -16,6 +16,8 @@ class FlashlightService {
   List<CameraDescription>? _cameras;
   bool _isCameraInitialized = false;
 
+  bool _isBlinking = false;
+
   /// Initialize camera
   Future<void> _initializeCamera() async {
     if (_isCameraInitialized) return;
@@ -28,8 +30,10 @@ class FlashlightService {
           ResolutionPreset.low,
           enableAudio: false,
         );
+
         await _cameraController!.initialize();
         _isCameraInitialized = true;
+
         debugPrint('Camera initialized for flashlight control');
       }
     } catch (e) {
@@ -37,74 +41,72 @@ class FlashlightService {
     }
   }
 
-  /// Request camera permission
   Future<bool> _requestPermission() async {
     var status = await Permission.camera.request();
-    if (!status.isGranted) {
-      debugPrint("Camera permission denied");
-      return false;
-    }
-    return true;
+    return status.isGranted;
   }
 
-  /// 🔴 FIXED: Blink flashlight (NOW OUTSIDE initializeCamera)
-  Future<void> blinkFlashlight({int times = 5}) async {
-    try {
-      bool permissionGranted = await _requestPermission();
-      if (!permissionGranted) return;
+  /// 🔴 START BLINKING (CONTINUOUS)
+  Future<void> startBlinking({int delayMs = 300}) async {
+    if (_isBlinking) return;
+    _isBlinking = true;
 
-      await _initializeCamera();
+    bool permissionGranted = await _requestPermission();
+    if (!permissionGranted) return;
 
-      if (_cameraController == null || !_isCameraInitialized) return;
+    await _initializeCamera();
 
-      for (int i = 0; i < times; i++) {
-        // ON
+    if (_cameraController == null) return;
+
+    while (_isBlinking) {
+      try {
         await _cameraController!.setFlashMode(FlashMode.torch);
         _isFlashOn = true;
-        debugPrint('ON');
 
-        await Future.delayed(const Duration(milliseconds: 350));
+        await Future.delayed(Duration(milliseconds: delayMs));
 
-        // OFF
         await _cameraController!.setFlashMode(FlashMode.off);
         _isFlashOn = false;
-        debugPrint('OFF');
 
-        await Future.delayed(const Duration(milliseconds: 350));
+        await Future.delayed(Duration(milliseconds: delayMs));
+      } catch (e) {
+        debugPrint('Blink error: $e');
+        break;
       }
-    } catch (e, s) {
-      debugPrint('Blink error: $e');
-      debugPrint('$s');
+    }
+  }
+
+  /// 🔴 STOP BLINKING
+  Future<void> stopBlinking() async {
+    _isBlinking = false;
+
+    try {
+      if (_cameraController != null) {
+        await _cameraController!.setFlashMode(FlashMode.off);
+      }
+      _isFlashOn = false;
+    } catch (e) {
+      debugPrint('Stop blink error: $e');
     }
   }
 
   Future<void> turnOnFlashlight() async {
-    try {
-      bool permissionGranted = await _requestPermission();
-      if (!permissionGranted) return;
+    bool permissionGranted = await _requestPermission();
+    if (!permissionGranted) return;
 
-      await _initializeCamera();
+    await _initializeCamera();
 
-      if (_cameraController != null && _isCameraInitialized) {
-        await _cameraController!.setFlashMode(FlashMode.torch);
-        _isFlashOn = true;
-      }
-    } catch (e, s) {
-      debugPrint('Flash ON error: $e');
-      debugPrint('$s');
+    if (_cameraController != null) {
+      await _cameraController!.setFlashMode(FlashMode.torch);
+      _isFlashOn = true;
     }
   }
 
   Future<void> turnOffFlashlight() async {
-    try {
-      if (_cameraController != null && _isCameraInitialized) {
-        await _cameraController!.setFlashMode(FlashMode.off);
-      }
-      _isFlashOn = false;
-    } catch (e, s) {
-      debugPrint('Flash OFF error: $e');
-      debugPrint('$s');
+    if (_cameraController != null) {
+      await _cameraController!.setFlashMode(FlashMode.off);
     }
+    _isFlashOn = false;
   }
 
   Future<void> toggleFlashlight() async {
@@ -116,6 +118,8 @@ class FlashlightService {
   }
 
   Future<void> dispose() async {
+    _isBlinking = false;
+
     try {
       await _cameraController?.dispose();
       _cameraController = null;
@@ -125,3 +129,5 @@ class FlashlightService {
     }
   }
 }
+
+final flashlightService = FlashlightService();

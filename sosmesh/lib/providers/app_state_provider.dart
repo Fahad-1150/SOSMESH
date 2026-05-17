@@ -37,6 +37,7 @@ class AppStateProvider extends ChangeNotifier {
   bool get isSOS => _isSOS;
   BLEService get bleService => _bleService;
   SOSService get sosService => _sosService;
+  LocationService get locationService => _locationService;
 
   // For backward compatibility
   bool get isLocationOn => _isWiFiOn;

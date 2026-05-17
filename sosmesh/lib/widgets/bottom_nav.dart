@@ -51,72 +51,88 @@ class _BottomNavState extends State<BottomNav>
     }
   }
 
+  // 🔴 CANCEL CONFIRMATION
+  void _showCancelSOSDialog(AppStateProvider appState) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.black,
+          title: const Text(
+            "Cancel SOS?",
+            style: TextStyle(color: Colors.white),
+          ),
+          content: const Text(
+            "Do you really want to stop emergency alert?",
+            style: TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("No", style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                appState.setSOS(false);
+                Navigator.pop(context);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("SOS Cancelled"),
+                    backgroundColor: Colors.grey,
+                  ),
+                );
+              },
+              child: const Text("Yes", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AppStateProvider>(
       builder: (context, appState, _) {
         return Container(
           padding: const EdgeInsets.all(15),
-          color: const Color(0xff0d2f63),
+          color: Colors.black,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // FLASH
               GestureDetector(
-                onTap: () {
-                  _toggleFlash(appState);
-                },
-                child: ScaleTransition(
-                  scale: Tween<double>(begin: 1.0, end: 1.2).animate(
-                    CurvedAnimation(
-                      parent: _flashController,
-                      curve: Curves.easeInOut,
-                    ),
+                onTap: () => _toggleFlash(appState),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: appState.flashEnabled ? Colors.yellow : Colors.cyan,
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: appState.flashEnabled
-                          ? Colors.yellow
-                          : Colors.cyan,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: appState.flashEnabled
-                          ? [
-                              BoxShadow(
-                                color: Colors.yellow.withValues(alpha: 0.5),
-                                blurRadius: 15,
-                                spreadRadius: 3,
-                              ),
-                            ]
-                          : [],
-                    ),
-                    child: Row(
-                      children: [
+                  child: Row(
+                    children: [
+                      Icon(
                         appState.flashEnabled
-                            ? const Icon(
-                                Icons.flash_on,
-                                color: Colors.black,
-                                size: 20,
-                              )
-                            : const Icon(
-                                Icons.flash_off,
-                                color: Colors.black,
-                                size: 20,
-                              ),
-                        const SizedBox(width: 5),
-                        Text(
-                          appState.flashEnabled ? "⚡ FLASHING" : "⚡ Flash",
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
+                            ? Icons.flash_on
+                            : Icons.flash_off,
+                        color: Colors.black,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 5),
+                      const Text(
+                        "Flash",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
 
-              // ✅ CHANGED PART ONLY
+              // AI
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -137,9 +153,9 @@ class _BottomNavState extends State<BottomNav>
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xff203554),
+                        color: const Color(0xff1a1a1a),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.cyan, width: 1),
+                        border: Border.all(color: Colors.cyan),
                       ),
                       child: const Icon(
                         Icons.smart_toy,
@@ -148,6 +164,46 @@ class _BottomNavState extends State<BottomNav>
                       ),
                     ),
                   ],
+                ),
+              ),
+
+              // 🔴 SINGLE SOS BUTTON (PRESS + HOLD)
+              GestureDetector(
+                onTap: () {
+                  if (!appState.isSOS) {
+                    appState.setSOS(true);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("SOS Activated"),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
+
+                onLongPress: () {
+                  if (appState.isSOS) {
+                    _showCancelSOSDialog(appState);
+                  }
+                },
+
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: appState.isSOS ? Colors.red : Colors.grey,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Text(
+                    appState.isSOS ? "SOS ACTIVE" : "SOS",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],

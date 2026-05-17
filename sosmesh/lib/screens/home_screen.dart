@@ -17,42 +17,46 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Initialize services after first frame
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
+
       body: SafeArea(
         child: Column(
           children: [
+            // 🔵 MAIN CONTENT
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    TopBar(),
+                    const TopBar(),
                     const SizedBox(height: 10),
+
                     Row(
-                      children: [
+                      children: const [
                         Expanded(child: NearbyDevices()),
                         Expanded(child: SOSReceived()),
                       ],
                     ),
+
                     const SizedBox(height: 20),
-                    PushSOSButton(),
-                    const SizedBox(height: 20),
-                    MapCard(),
+
+                    const PushSOSButton(),
+
                     const SizedBox(height: 20),
                   ],
                 ),
               ),
             ),
-            BottomNav(),
+
+            // 📍 MAP CARD (ABOVE BOTTOM NAV, RIGHT SIDE)
+            const Padding(
+              padding: EdgeInsets.only(right: 10, bottom: 8),
+              child: Align(alignment: Alignment.centerRight, child: MapCard()),
+            ),
+
+            // 🔻 BOTTOM NAV
+            const BottomNav(),
           ],
         ),
       ),

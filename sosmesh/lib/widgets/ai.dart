@@ -63,11 +63,11 @@ class _AIPageState extends State<AIPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff0b0f1a),
+      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
 
       // 🔵 AppBar like ChatGPT
       appBar: AppBar(
-        backgroundColor: const Color(0xff0b0f1a),
+        backgroundColor: const Color.fromARGB(128, 0, 0, 0),
         elevation: 0,
         title: const Text(
           "Ask SOSMESH AI",
@@ -94,8 +94,10 @@ class _AIPageState extends State<AIPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: const BoxDecoration(
-              color: Color(0xff111827),
-              border: Border(top: BorderSide(color: Colors.black26)),
+              color: Color.fromARGB(255, 0, 0, 0),
+              border: Border(
+                top: BorderSide(color: Color.fromARGB(66, 0, 0, 0)),
+              ),
             ),
             child: Row(
               children: [

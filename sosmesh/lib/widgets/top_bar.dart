@@ -9,45 +9,84 @@ class TopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AppStateProvider>(
       builder: (context, appState, _) {
+        final battery = appState.batteryLevel.clamp(0, 100);
+
         return Padding(
           padding: const EdgeInsets.all(10),
           child: Row(
             children: [
               Icon(
                 Icons.wifi,
-                size: 40,
+                size: 35,
                 color: appState.isWiFiOn ? Colors.cyan : Colors.grey,
               ),
+
+              const SizedBox(width: 10),
+
               Icon(
                 Icons.bluetooth,
-                size: 40,
+                size: 35,
                 color: appState.isBluetoothOn ? Colors.blue : Colors.grey,
               ),
-              const SizedBox(width: 10),
+
+              const SizedBox(width: 12),
+
               Text(
                 "SOSMESH",
                 style: TextStyle(
                   color: appState.isSOS ? Colors.red : Colors.lightGreen,
-                  fontSize: 30,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
               const Spacer(),
-              Icon(
-                Icons.battery_full,
-                color: appState.batteryLevel > 20
-                    ? Colors.lightGreen
-                    : const Color.fromARGB(255, 255, 0, 0),
-                size: 40,
-              ),
-              Text(
-                "${appState.batteryLevel}%",
-                style: TextStyle(
-                  color: appState.batteryLevel > 20
-                      ? Colors.lightGreen
-                      : const Color.fromARGB(255, 255, 0, 0),
-                  fontSize: 25,
-                ),
+
+              // 🔋 Horizontal Battery
+              Row(
+                children: [
+                  Container(
+                    width: 45,
+                    height: 20,
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: battery > 20
+                            ? const Color.fromARGB(255, 110, 110, 110)
+                            : Colors.red,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Stack(
+                      children: [
+                        // Fill level
+                        FractionallySizedBox(
+                          widthFactor: battery / 100,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: battery > 20
+                                  ? const Color.fromARGB(255, 75, 98, 76)
+                                  : Colors.red,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 6),
+
+                  Text(
+                    "$battery%",
+                    style: TextStyle(
+                      color: battery > 20 ? Colors.green : Colors.red,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -36,15 +36,18 @@ class _PushSOSButtonState extends State<PushSOSButton>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color(0xff0d2f63),
-          title: const Text('Send SOS', style: TextStyle(color: Colors.white)),
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+          title: const Text(
+            'Send SOS',
+            style: TextStyle(color: Color.fromARGB(255, 139, 136, 136)),
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButton<String>(
                   value: selectedEmergency,
-                  dropdownColor: const Color(0xff203554),
+                  dropdownColor: const Color.fromARGB(255, 255, 255, 255),
                   items: ['Medical', 'Fire', 'Police', 'Help'].map((
                     String value,
                   ) {
@@ -52,7 +55,9 @@ class _PushSOSButtonState extends State<PushSOSButton>
                       value: value,
                       child: Text(
                         value,
-                        style: const TextStyle(color: Colors.cyan),
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 255, 0, 0),
+                        ),
                       ),
                     );
                   }).toList(),
@@ -65,7 +70,7 @@ class _PushSOSButtonState extends State<PushSOSButton>
                 const SizedBox(height: 10),
                 TextField(
                   controller: messageController,
-                  style: const TextStyle(color: Colors.cyan),
+                  style: const TextStyle(color: Color.fromARGB(255, 255, 7, 7)),
                   maxLines: 3,
                   decoration: InputDecoration(
                     hintText: 'Enter your message',

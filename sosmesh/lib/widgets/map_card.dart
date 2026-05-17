@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+
 import '../providers/app_state_provider.dart';
+import 'fullview.dart';
 
 class MapCard extends StatefulWidget {
   const MapCard({super.key});
@@ -10,144 +14,138 @@ class MapCard extends StatefulWidget {
 }
 
 class _MapCardState extends State<MapCard> {
-  String _locationText = 'Loading...';
+  LatLng? _currentLatLng;
+  String _locationText = "Getting location...";
 
   @override
   void initState() {
     super.initState();
-    _getLocation();
+    _loadLocation();
   }
 
-  Future<void> _getLocation() async {
-    try {
-      final location = await context
-          .read<AppStateProvider>()
-          .getCurrentLocation();
-      if (mounted) {
-        setState(() {
-          _locationText = location;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error getting location: $e');
-      if (mounted) {
-        setState(() {
-          _locationText = 'Error getting location';
-        });
-      }
+  Future<void> _loadLocation() async {
+    final provider = context.read<AppStateProvider>();
+    final pos = await provider.locationService.getCurrentLocation();
+
+    if (!mounted) return;
+
+    if (pos != null) {
+      setState(() {
+        _currentLatLng = LatLng(pos.latitude, pos.longitude);
+        _locationText =
+            "${pos.latitude.toStringAsFixed(4)}, ${pos.longitude.toStringAsFixed(4)}";
+      });
+    } else {
+      setState(() {
+        _currentLatLng = const LatLng(23.8103, 90.4125);
+        _locationText = "Location unavailable";
+      });
     }
+  }
+
+  void _openFullMap() {
+    if (_currentLatLng == null) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => FullViewMap(initialLocation: _currentLatLng!),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: GestureDetector(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                backgroundColor: const Color(0xff0d2f63),
-                title: const Text(
-                  'Current Location',
-                  style: TextStyle(color: Colors.cyan),
-                ),
-                content: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+    if (_currentLatLng == null) {
+      return const CircularProgressIndicator(color: Colors.cyan);
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 🗺 MAP CARD
+        GestureDetector(
+          onTap: _openFullMap,
+          child: Container(
+            width: 110,
+            height: 110,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.cyan, width: 2),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: Stack(
+                children: [
+                  FlutterMap(
+                    options: MapOptions(
+                      initialCenter: _currentLatLng!,
+                      initialZoom: 15,
+                    ),
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: const Color(0xff203554),
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Colors.cyan, width: 2),
-                        ),
-                        child: Column(
-                          children: [
-                            const Icon(
-                              Icons.location_on,
-                              color: Colors.red,
-                              size: 40,
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              _locationText,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.lightGreen,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
+                      TileLayer(
+                        urlTemplate:
+                            "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        userAgentPackageName: 'com.sosmesh.app',
                       ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Tap to refresh location',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: _currentLatLng!,
+                            width: 40,
+                            height: 40,
+                            child: const Icon(
+                              Icons.location_pin,
+                              color: Colors.red,
+                              size: 35,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      _getLocation();
-                    },
-                    child: const Text(
-                      'Refresh',
-                      style: TextStyle(color: Colors.cyan),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text(
-                      'Close',
-                      style: TextStyle(color: Colors.grey),
+
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      color: Colors.black54,
+                      child: Text(
+                        _locationText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                        ),
+                      ),
                     ),
                   ),
                 ],
-              );
-            },
-          );
-        },
-        child: Container(
-          margin: const EdgeInsets.only(right: 10),
-          width: 90,
-          height: 90,
-          decoration: BoxDecoration(
-            color: const Color(0xff203554),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.cyan, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.cyan.withValues(alpha: 0.3),
-                blurRadius: 8,
-                spreadRadius: 2,
               ),
-            ],
-          ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.location_on, color: Colors.red, size: 30),
-                const SizedBox(height: 4),
-                const Text(
-                  'Location',
-                  style: TextStyle(
-                    color: Colors.cyan,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
             ),
           ),
         ),
-      ),
+
+        const SizedBox(height: 6),
+
+        // 🔘 FULL MAP BUTTON
+        GestureDetector(
+          onTap: _openFullMap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.cyan,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Text(
+              "FULL MAP",
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

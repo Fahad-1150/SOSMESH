@@ -84,11 +84,11 @@ class _ChatListScreenState extends State<ChatListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Connected Devices'),
-        backgroundColor: const Color(0xff1a1a2e),
+        title: const Text('Chats'),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         elevation: 0,
       ),
-      backgroundColor: const Color(0xff0f3460),
+      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _connectedDevicesFuture,
         builder: (context, snapshot) {

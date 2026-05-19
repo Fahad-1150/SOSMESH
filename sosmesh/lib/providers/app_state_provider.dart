@@ -6,6 +6,7 @@ import '../services/sos_service.dart';
 import '../services/battery_service.dart';
 import '../services/flashlight_service.dart';
 import '../services/connectivity_service.dart';
+import '../services/chat_service.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class AppStateProvider extends ChangeNotifier {
@@ -15,6 +16,7 @@ class AppStateProvider extends ChangeNotifier {
   final BatteryService _batteryService = BatteryService();
   final FlashlightService _flashlightService = FlashlightService();
   final ConnectivityService _connectivityService = ConnectivityService();
+  final ChatService _chatService = ChatService();
 
   List<ScanResult> _nearbyDevices = [];
   List<SOSMessage> _receivedSOS = [];
@@ -38,6 +40,7 @@ class AppStateProvider extends ChangeNotifier {
   BLEService get bleService => _bleService;
   SOSService get sosService => _sosService;
   LocationService get locationService => _locationService;
+  ChatService get chatService => _chatService;
 
   // For backward compatibility
   bool get isLocationOn => _isWiFiOn;
@@ -81,6 +84,15 @@ class AppStateProvider extends ChangeNotifier {
       // Initialize battery service
       await _batteryService.initializeBattery();
       _batteryLevel = _batteryService.batteryLevel;
+
+      // Initialize chat service with a unique device ID
+      final deviceId = _bleService.discoveredDevices.isNotEmpty
+          ? _bleService.discoveredDevices.first.device.remoteId.str
+          : 'device_${DateTime.now().millisecondsSinceEpoch}';
+      await _chatService.initialize(
+        deviceId,
+        'Device ${deviceId.substring(0, 4)}',
+      );
 
       notifyListeners();
     } catch (e) {

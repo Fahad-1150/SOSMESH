@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import '../providers/app_state_provider.dart';
 import '../widgets/ai.dart';
+import '../screens/chat_list_screen.dart';
 
 class BottomNav extends StatefulWidget {
   const BottomNav({super.key});
@@ -107,7 +108,9 @@ class _BottomNavState extends State<BottomNav>
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: appState.flashEnabled ? Colors.yellow : Colors.cyan,
+                    color: appState.flashEnabled
+                        ? Colors.yellow
+                        : const Color.fromARGB(255, 255, 255, 255),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -121,7 +124,7 @@ class _BottomNavState extends State<BottomNav>
                       ),
                       const SizedBox(width: 5),
                       const Text(
-                        "Flash",
+                        "",
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -143,9 +146,9 @@ class _BottomNavState extends State<BottomNav>
                 child: Row(
                   children: [
                     const Text(
-                      "Talk with",
+                      "",
                       style: TextStyle(
-                        color: Colors.cyan,
+                        color: Color.fromARGB(255, 143, 145, 146),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -159,11 +162,43 @@ class _BottomNavState extends State<BottomNav>
                       ),
                       child: const Icon(
                         Icons.smart_toy,
-                        color: Colors.cyan,
+                        color: Color.fromARGB(255, 255, 255, 255),
                         size: 24,
                       ),
                     ),
                   ],
+                ),
+              ),
+
+              // MESSAGES/CHAT
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ChatListScreen(),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 255, 255, 255),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.chat, color: Colors.black, size: 20),
+                      SizedBox(width: 5),
+                      Text(
+                        "Chat",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 

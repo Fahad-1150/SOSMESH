@@ -51,8 +51,7 @@ class _FullViewMapState extends State<FullViewMap> {
     );
   }
 
-  // ⚠️ SIMPLE OFFLINE MODE SIMULATION
-  // Real offline requires tile caching plugin (explained below)
+
   void _toggleOffline() async {
     setState(() => _downloading = true);
 

@@ -144,12 +144,17 @@ class _PushSOSButtonState extends State<PushSOSButton>
               child: Container(
                 height: 120,
                 decoration: BoxDecoration(
-                  color: appState.isSOS ? Colors.red : Colors.deepOrange,
+                  color: appState.isSOS
+                      ? const Color.fromARGB(255, 255, 25, 8)
+                      : const Color.fromARGB(255, 255, 60, 0),
                   borderRadius: BorderRadius.circular(25),
                   boxShadow: [
                     BoxShadow(
-                      color: (appState.isSOS ? Colors.red : Colors.deepOrange)
-                          .withValues(alpha: 0.5),
+                      color:
+                          (appState.isSOS
+                                  ? const Color.fromARGB(255, 255, 17, 0)
+                                  : Colors.deepOrange)
+                              .withValues(alpha: 0.5),
                       blurRadius: 10,
                       spreadRadius: 2,
                     ),

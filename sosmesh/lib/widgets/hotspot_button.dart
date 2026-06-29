@@ -94,8 +94,8 @@ class _HotspotButtonState extends State<HotspotButton> {
       child: ElevatedButton.icon(
         onPressed: _isStarting ? null : _showHotspotDialog,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.cyan,
-          foregroundColor: Colors.black,
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+          foregroundColor: const Color.fromARGB(255, 255, 0, 0),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         icon: _isStarting

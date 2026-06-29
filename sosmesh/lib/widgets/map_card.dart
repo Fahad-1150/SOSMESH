@@ -133,11 +133,11 @@ class _MapCardState extends State<MapCard> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.cyan,
+              color: const Color.fromARGB(255, 255, 255, 255),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Text(
-              "FULL MAP",
+              "---🄼🄰🄿---",
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,

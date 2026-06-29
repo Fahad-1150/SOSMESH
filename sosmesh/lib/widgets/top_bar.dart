@@ -34,7 +34,9 @@ class TopBar extends StatelessWidget {
               Text(
                 "SOSMESH",
                 style: TextStyle(
-                  color: appState.isSOS ? Colors.red : Colors.lightGreen,
+                  color: appState.isSOS
+                      ? Colors.red
+                      : const Color.fromARGB(255, 255, 255, 255),
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),

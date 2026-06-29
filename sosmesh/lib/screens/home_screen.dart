@@ -7,6 +7,7 @@ import '../widgets/sos_received.dart';
 import '../widgets/push_sos_button.dart';
 import '../widgets/map_card.dart';
 import '../widgets/bottom_nav.dart';
+import '../widgets/hotspot_button.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -51,8 +52,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // 📍 MAP CARD (ABOVE BOTTOM NAV, RIGHT SIDE)
             const Padding(
-              padding: EdgeInsets.only(right: 10, bottom: 8),
-              child: Align(alignment: Alignment.centerRight, child: MapCard()),
+              padding: EdgeInsets.fromLTRB(10, 0, 10, 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  HotspotButton(),
+                  Spacer(),
+                  MapCard(),
+                ],
+              ),
             ),
 
             // 🔻 BOTTOM NAV
